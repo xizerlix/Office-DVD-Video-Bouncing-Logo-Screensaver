@@ -60,6 +60,38 @@ jobs:
           cd release-staging
           7z a ..\DvdScreensaver-${{ github.ref_name }}.zip *
 
+      - name: Clean up any previous release for this tag
+        # If a previous run created a release with junk assets, delete it
+        # first so this run replaces it cleanly.
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          action: delete
+        continue-on-error: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: |
+            ## ${{ github.ref_name }}
+
+            **Most users**: download `DvdScreensaver-${{ github.ref_name }}.zip`
+            — it contains the binary, every install/uninstall script, and the
+            full source. Unzip anywhere and run `install.bat` as Administrator.
+
+            **Just the binary**: `DvdScreensaver.scr` (renamed to .scr so you
+            can drop it directly into `C:\Windows\System32\`).
+
+            See [README.md](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/README.md)
+            for full install instructions.
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            DvdScreensaver-${{ github.ref_name }}.zip
+            bin/DvdScreensaver.scr
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
