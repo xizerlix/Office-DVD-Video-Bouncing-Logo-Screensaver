@@ -29,11 +29,13 @@ jobs:
 
       - name: Stage release files
         # Copy everything we want in the release into a single directory
-        # so we can zip it cleanly.
+        # so we can zip it cleanly. Also drop a .scr copy next to the .exe
+        # in bin/ so the release asset for "bin/DvdScreensaver.scr" exists.
         shell: cmd
         run: |
           if not exist release-staging mkdir release-staging
           copy /Y bin\DvdScreensaver.exe          release-staging\
+          copy /Y bin\DvdScreensaver.exe          bin\DvdScreensaver.scr
           copy /Y bin\DvdScreensaver.exe          release-staging\DvdScreensaver.scr
           copy /Y build.bat                       release-staging\
           copy /Y install.bat                     release-staging\
