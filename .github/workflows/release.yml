@@ -22,12 +22,15 @@ jobs:
         # build.bat calls csc.exe from .NET Framework 4.x and writes
         # bin/DvdScreensaver.exe. The whole toolchain is preinstalled
         # on windows-latest GitHub runners.
-        run: cmd //c build.bat
+        # shell: cmd — GitHub Actions on Windows defaults to pwsh, which
+        # doesn't grok `if not exist` without parentheses.
+        shell: cmd
+        run: build.bat
 
       - name: Stage release files
         # Copy everything we want in the release into a single directory
-        # so we can zip it cleanly. Skip test-* and *-all.ps1 from the zip
-        # (those are developer-facing) but keep them as individual assets.
+        # so we can zip it cleanly.
+        shell: cmd
         run: |
           if not exist release-staging mkdir release-staging
           copy /Y bin\DvdScreensaver.exe          release-staging\
@@ -50,6 +53,7 @@ jobs:
       - name: Zip release
         # Create a single .zip users can download for offline install.
         # 7-Zip is preinstalled on windows-latest runners.
+        shell: cmd
         run: |
           cd release-staging
           7z a ..\DvdScreensaver-${{ github.ref_name }}.zip *
