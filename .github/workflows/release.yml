@@ -68,12 +68,12 @@ jobs:
           body: |
             ## ${{ github.ref_name }}
 
-            Download **`DvdScreensaver-${{ github.ref_name }}.zip`** for a full
-            offline install bundle (binary + all scripts + source).
+            **Most users**: download `DvdScreensaver-${{ github.ref_name }}.zip`
+            — it contains the binary, every install/uninstall script, and the
+            full source. Unzip anywhere and run `install.bat` as Administrator.
 
-            For just the binary, grab `DvdScreensaver.scr` and drop it into
-            `C:\Windows\System32\` manually, then enable it via Screen Saver
-            Settings.
+            **Just the binary**: `DvdScreensaver.scr` (renamed to .scr so you
+            can drop it directly into `C:\Windows\System32\`).
 
             See [README.md](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/README.md)
             for full install instructions.
@@ -81,22 +81,4 @@ jobs:
           fail_on_unmatched_files: true
           files: |
             DvdScreensaver-${{ github.ref_name }}.zip
-            bin/DvdScreensaver.exe
             bin/DvdScreensaver.scr
-            build.bat
-            install.bat
-            uninstall.bat
-            force-remove.bat
-            preview.bat
-            test-windowed.bat
-            kill-dvd.ps1
-            kill-all.ps1
-            kill-running.ps1
-            check-owner.ps1
-            smoke-test.ps1
-            test-preview.ps1
-            test-fast-exit.ps1
-            test-args.ps1
-            src/Program.cs
-            README.md
-            LICENSE
