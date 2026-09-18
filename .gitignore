@@ -1,0 +1,21 @@
+# Build output — DvdScreensaver.exe is produced by build.bat (calls csc.exe).
+# The user re-runs build.bat after pulling; not worth tracking the binary.
+bin/
+# Alternative: keep the directory but ignore the binary:
+# bin/*.exe
+
+# Log files produced by install.bat / uninstall.bat / force-remove.bat
+*.log
+
+# OS / shell junk
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editor / IDE (only matters if you ever open the .cs in Visual Studio)
+.vs/
+*.user
+*.suo
+
+# PowerShell artifacts (in case someone runs the scripts from VS Code)
+.pscodeanalyze.cache

@@ -1,0 +1,96 @@
+name: Build and release
+
+# Triggered by a semver tag push (v1.0.0, v1.2.3, ...).
+# To publish a release locally:
+#   git tag v1.0.0
+#   git push origin v1.0.0
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write   # needed to create the release + upload assets
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build screensaver
+        # build.bat calls csc.exe from .NET Framework 4.x and writes
+        # bin/DvdScreensaver.exe. The whole toolchain is preinstalled
+        # on windows-latest GitHub runners.
+        run: cmd //c build.bat
+
+      - name: Stage release files
+        # Copy everything we want in the release into a single directory
+        # so we can zip it cleanly. Skip test-* and *-all.ps1 from the zip
+        # (those are developer-facing) but keep them as individual assets.
+        run: |
+          if not exist release-staging mkdir release-staging
+          copy /Y bin\DvdScreensaver.exe          release-staging\
+          copy /Y bin\DvdScreensaver.exe          release-staging\DvdScreensaver.scr
+          copy /Y build.bat                       release-staging\
+          copy /Y install.bat                     release-staging\
+          copy /Y uninstall.bat                   release-staging\
+          copy /Y force-remove.bat                release-staging\
+          copy /Y preview.bat                     release-staging\
+          copy /Y test-windowed.bat               release-staging\
+          copy /Y kill-dvd.ps1                    release-staging\
+          copy /Y kill-all.ps1                    release-staging\
+          copy /Y kill-running.ps1                release-staging\
+          copy /Y check-owner.ps1                 release-staging\
+          copy /Y README.md                       release-staging\
+          copy /Y LICENSE                         release-staging\
+          if not exist release-staging\src mkdir release-staging\src
+          copy /Y src\Program.cs                  release-staging\src\
+
+      - name: Zip release
+        # Create a single .zip users can download for offline install.
+        # 7-Zip is preinstalled on windows-latest runners.
+        run: |
+          cd release-staging
+          7z a ..\DvdScreensaver-${{ github.ref_name }}.zip *
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: |
+            ## ${{ github.ref_name }}
+
+            Download **`DvdScreensaver-${{ github.ref_name }}.zip`** for a full
+            offline install bundle (binary + all scripts + source).
+
+            For just the binary, grab `DvdScreensaver.scr` and drop it into
+            `C:\Windows\System32\` manually, then enable it via Screen Saver
+            Settings.
+
+            See [README.md](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/README.md)
+            for full install instructions.
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            DvdScreensaver-${{ github.ref_name }}.zip
+            bin/DvdScreensaver.exe
+            bin/DvdScreensaver.scr
+            build.bat
+            install.bat
+            uninstall.bat
+            force-remove.bat
+            preview.bat
+            test-windowed.bat
+            kill-dvd.ps1
+            kill-all.ps1
+            kill-running.ps1
+            check-owner.ps1
+            smoke-test.ps1
+            test-preview.ps1
+            test-fast-exit.ps1
+            test-args.ps1
+            src/Program.cs
+            README.md
+            LICENSE
